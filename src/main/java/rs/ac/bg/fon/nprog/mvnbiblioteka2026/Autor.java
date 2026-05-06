@@ -76,7 +76,7 @@ public class Autor {
 
 	/**
 	 * Postavlja prezime autora na unetu vrednost.
-	 * @param ime Novo prezime autora.
+	 * @param prezime Novo prezime autora.
 	 * @throws java.lang.NullPointerException Ako je uneto prezime null.
 	 * @throws java.lang.IllegalArgumentException Ako je uneto prezime prazan String.
 	 */
