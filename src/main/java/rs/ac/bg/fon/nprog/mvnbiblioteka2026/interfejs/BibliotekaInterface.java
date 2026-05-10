@@ -71,6 +71,19 @@ public interface BibliotekaInterface {
 	 */
 	public void sacuvajUFajl(String fajl);
 	
+	/**
+	 * Metoda za ucitavanje knjiga iz json fajla i njihov unos u Biblioteku.
+	 * 
+	 * Knjige se dodaju na vec postojece knjige u biblioteci i to samo ako nisu duplikati.
+	 * 
+	 * 
+	 * @param fajl Naziv fajla iz kog se ucitavaju knjige.
+	 * 
+	 * @throws java.lang.NullPointerException Ako je ime fajla null.
+	 * @throws java.lang.RuntimeException Ako se desi greska prilikom ucitavanja iz fajla.
+	 */
+	public void ucitajIzFajla(String fajl);
+	
 	
 		
 	

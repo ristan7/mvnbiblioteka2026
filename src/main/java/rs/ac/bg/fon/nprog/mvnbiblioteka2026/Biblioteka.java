@@ -1,8 +1,10 @@
 package rs.ac.bg.fon.nprog.mvnbiblioteka2026;
 
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -97,6 +99,30 @@ public class Biblioteka implements BibliotekaInterface {
 			gson.toJson(knjige, fw);
 		} catch (IOException e) {
 			throw new RuntimeException("Greska pri upisu u JSON fajl", e);
+		}
+
+	}
+
+	@Override
+	public void ucitajIzFajla(String fajl) {
+		if (fajl == null) {
+			throw new NullPointerException("Putanja do fajla ne sme biti null");
+		}
+
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+		try (FileReader fr = new FileReader(fajl)) {
+			List<Knjiga> noveKnjige = Arrays.asList(gson.fromJson(fr, Knjiga[].class));
+			if (noveKnjige != null) {
+				for (Knjiga novaKnjiga : noveKnjige) {
+					if (!knjige.contains(novaKnjiga)) {
+						knjige.add(novaKnjiga);
+					}
+				}
+			}
+
+		} catch (IOException ex) {
+			throw new RuntimeException("Greska pri ucitavanju iz JSON fajla", ex);
 		}
 
 	}

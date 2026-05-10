@@ -6,13 +6,18 @@ package rs.ac.bg.fon.nprog.mvnbiblioteka2026.interfejs;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import rs.ac.bg.fon.nprog.mvnbiblioteka2026.Knjiga;
 
@@ -228,6 +233,88 @@ public abstract class BibliotekaInterfaceTest {
 			assertTrue(sadrzaj.contains("Laguna"));
 			assertTrue(sadrzaj.contains("Vulkan"));
 		});
+
+	}
+	
+	@Test
+	void testUcitajIzFajlaNull() {
+		Exception ex = assertThrows(NullPointerException.class, () -> b.ucitajIzFajla(null));
+
+		assertEquals("Putanja do fajla ne sme biti null", ex.getMessage());
+	}
+	
+	@Test
+	void testUcitajIzFajlaException() {
+		Exception ex = assertThrows(RuntimeException.class, () -> b.ucitajIzFajla("?:/nepostojeciFolder/test.json"));
+
+		assertEquals("Greska pri ucitavanju iz JSON fajla", ex.getMessage());
+	}
+	
+	@Test
+	void testUcitajIzFajla() {
+		String putanja = "test-knjige.json";
+
+		k.setNaslov("Na Drini cuprija");
+		k.setIzdavac("Laguna");
+		k.setIzdanje(1);
+
+		k2.setNaslov("Gospodar prstenova");
+		k2.setIzdanje(2);
+		k2.setIzdavac("Vulkan");
+
+		List<Knjiga> knjigeZaUpis = Arrays.asList(k,k2);
+
+		assertDoesNotThrow(() -> {
+			Gson gson = new GsonBuilder().setPrettyPrinting().create();
+			
+			try(FileWriter fw = new FileWriter(putanja)){
+				gson.toJson(knjigeZaUpis,fw);
+			}
+		});
+		
+		assertDoesNotThrow(() -> b.ucitajIzFajla(putanja));
+
+		List<Knjiga> knjige = b.vratiSveKnjige();
+		
+		assertEquals(2, knjige.size());
+		
+		assertTrue(knjige.contains(k));
+		assertTrue(knjige.contains(k2));
+
+	}
+	
+	@Test
+	void testUcitajIzFajlaDuplikati() {
+		String putanja = "test-knjige.json";
+
+		k.setNaslov("Na Drini cuprija");
+		k.setIzdavac("Laguna");
+		k.setIzdanje(1);
+
+		k2.setNaslov("Gospodar prstenova");
+		k2.setIzdanje(2);
+		k2.setIzdavac("Vulkan");
+		
+		b.dodajKnjigu(k);
+
+		List<Knjiga> knjigeZaUpis = Arrays.asList(k,k2);
+
+		assertDoesNotThrow(() -> {
+			Gson gson = new GsonBuilder().setPrettyPrinting().create();
+			
+			try(FileWriter fw = new FileWriter(putanja)){
+				gson.toJson(knjigeZaUpis,fw);
+			}
+		});
+		
+		assertDoesNotThrow(() -> b.ucitajIzFajla(putanja));
+
+		List<Knjiga> knjige = b.vratiSveKnjige();
+		
+		assertEquals(2, knjige.size());
+		
+		assertTrue(knjige.contains(k));
+		assertTrue(knjige.contains(k2));
 
 	}
 
