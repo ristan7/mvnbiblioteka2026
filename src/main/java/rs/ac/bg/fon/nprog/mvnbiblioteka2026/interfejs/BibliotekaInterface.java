@@ -58,4 +58,20 @@ public interface BibliotekaInterface {
 	 * @throws java.lang.IllegalArgumentException ako nije unet nijedan kriterijum pretrage, odnosno ako su svi null odnosno null.
 	 */
 	public List<Knjiga> pronadjiKnjigu(Autor autor, long isbn, String naslov, String izdavac);
+	
+	/**
+	 * Upisuje sve knjige iz biblioteke u fajl u JSON formatu.
+	 * 
+	 * Upis nije u JSON compact formatu. Naziv atributa je isti kao u klasi Knjiga.
+	 * 
+	 * @param fajl Ime fajla u koji se upisuju podaci.
+	 * 
+	 * @throws java.lang.NullPointerException Ako je ime fajla null.
+	 * @throws java.lang.RuntimeException Ako se desi greska prilikom upisivanja u fajl.
+	 */
+	public void sacuvajUFajl(String fajl);
+	
+	
+		
+	
 }

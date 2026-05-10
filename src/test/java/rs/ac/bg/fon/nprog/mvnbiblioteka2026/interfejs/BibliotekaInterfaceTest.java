@@ -5,6 +5,9 @@ package rs.ac.bg.fon.nprog.mvnbiblioteka2026.interfejs;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
@@ -47,6 +50,11 @@ public abstract class BibliotekaInterfaceTest {
 	@AfterEach
 	void tearDown() throws Exception {
 		b = null;
+
+		File fajl = new File("test-knjige.json");
+		if (fajl.exists()) {
+			fajl.delete();
+		}
 	}
 
 	/**
@@ -173,6 +181,53 @@ public abstract class BibliotekaInterfaceTest {
 		assertEquals(2, knjige.size());
 		assertTrue(knjige.contains(k2));
 		assertTrue(knjige.contains(k3));
+
+	}
+
+	@Test
+	void testSacuvajUFajlNullFile() {
+		Exception ex = assertThrows(NullPointerException.class, () -> b.sacuvajUFajl(null));
+
+		assertEquals("Putanja do fajla ne sme biti null", ex.getMessage());
+	}
+
+	@Test
+	void testSacuvajUFajlException() {
+		Exception ex = assertThrows(RuntimeException.class, () -> b.sacuvajUFajl("?:/nepostojeciFolder/test.json"));
+
+		assertEquals("Greska pri upisu u JSON fajl", ex.getMessage());
+	}
+
+	@Test
+	void testSacuvajUFajl() {
+		String putanja = "test-knjige.json";
+
+		k.setNaslov("Na Drini cuprija");
+		k.setIzdavac("Laguna");
+		k.setIzdanje(1);
+
+		k2.setNaslov("Gospodar prstenova");
+		k2.setIzdanje(2);
+		k2.setIzdavac("Vulkan");
+
+		b.dodajKnjigu(k);
+		b.dodajKnjigu(k2);
+
+		assertDoesNotThrow(() -> b.sacuvajUFajl(putanja));
+
+		File fajl = new File(putanja);
+
+		assertTrue(fajl.exists());
+		assertTrue(fajl.length() > 0);
+		
+		assertDoesNotThrow(() -> {
+			String sadrzaj = Files.readString(Path.of(putanja));
+			
+			assertTrue(sadrzaj.contains("Na Drini cuprija"));
+			assertTrue(sadrzaj.contains("Gospodar prstenova"));
+			assertTrue(sadrzaj.contains("Laguna"));
+			assertTrue(sadrzaj.contains("Vulkan"));
+		});
 
 	}
 

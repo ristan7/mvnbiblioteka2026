@@ -1,7 +1,12 @@
 package rs.ac.bg.fon.nprog.mvnbiblioteka2026;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import rs.ac.bg.fon.nprog.mvnbiblioteka2026.interfejs.BibliotekaInterface;
 
@@ -43,19 +48,23 @@ public class Biblioteka implements BibliotekaInterface {
 	public List<Knjiga> vratiSveKnjige() {
 		return knjige;
 	}
-	
+
 	/**
 	 * Pretrazuje biblioteku i vraca sve knjige koje imaju uneti deo naslova.
 	 * 
-	 * <b>Implementirana je pretraga samo preko naslova a ne preko ostalih kriterijuma.</b>
+	 * <b>Implementirana je pretraga samo preko naslova a ne preko ostalih
+	 * kriterijuma.</b>
 	 * 
-	 * @param autor Jedan od autora knjige.
-	 * @param isbn Tacan isbn broj knjige.
-	 * @param naslov Deo naslova knjige. Ne mora se unositi ceo naslov. 
+	 * @param autor   Jedan od autora knjige.
+	 * @param isbn    Tacan isbn broj knjige.
+	 * @param naslov  Deo naslova knjige. Ne mora se unositi ceo naslov.
 	 * @param izdavac Deo naziva izdavaca. Ne mora se unositi ceo naziv.
-	 * @return Vraca listu sa knjigama koje odgovaraju kriterijumima ili praznu listu ako ni jedna knjiga ne odgovara kriterijumima.
+	 * @return Vraca listu sa knjigama koje odgovaraju kriterijumima ili praznu
+	 *         listu ako ni jedna knjiga ne odgovara kriterijumima.
 	 * 
-	 * @throws java.lang.IllegalArgumentException ako nije unet nijedan kriterijum pretrage, odnosno ako su svi null odnosno null.
+	 * @throws java.lang.IllegalArgumentException ako nije unet nijedan kriterijum
+	 *                                            pretrage, odnosno ako su svi null
+	 *                                            odnosno null.
 	 */
 	@Override
 	public List<Knjiga> pronadjiKnjigu(Autor autor, long isbn, String naslov, String izdavac) {
@@ -73,6 +82,23 @@ public class Biblioteka implements BibliotekaInterface {
 		}
 
 		return rezultati;
+	}
+
+	@Override
+	public void sacuvajUFajl(String fajl) {
+
+		if (fajl == null) {
+			throw new NullPointerException("Putanja do fajla ne sme biti null");
+		}
+
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+		try (FileWriter fw = new FileWriter(fajl)) {
+			gson.toJson(knjige, fw);
+		} catch (IOException e) {
+			throw new RuntimeException("Greska pri upisu u JSON fajl", e);
+		}
+
 	}
 
 }
