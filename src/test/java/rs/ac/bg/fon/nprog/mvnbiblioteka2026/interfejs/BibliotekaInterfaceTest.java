@@ -224,10 +224,10 @@ public abstract class BibliotekaInterfaceTest {
 
 		assertTrue(fajl.exists());
 		assertTrue(fajl.length() > 0);
-		
+
 		assertDoesNotThrow(() -> {
 			String sadrzaj = Files.readString(Path.of(putanja));
-			
+
 			assertTrue(sadrzaj.contains("Na Drini cuprija"));
 			assertTrue(sadrzaj.contains("Gospodar prstenova"));
 			assertTrue(sadrzaj.contains("Laguna"));
@@ -235,21 +235,21 @@ public abstract class BibliotekaInterfaceTest {
 		});
 
 	}
-	
+
 	@Test
 	void testUcitajIzFajlaNull() {
 		Exception ex = assertThrows(NullPointerException.class, () -> b.ucitajIzFajla(null));
 
 		assertEquals("Putanja do fajla ne sme biti null", ex.getMessage());
 	}
-	
+
 	@Test
 	void testUcitajIzFajlaException() {
 		Exception ex = assertThrows(RuntimeException.class, () -> b.ucitajIzFajla("?:/nepostojeciFolder/test.json"));
 
 		assertEquals("Greska pri ucitavanju iz JSON fajla", ex.getMessage());
 	}
-	
+
 	@Test
 	void testUcitajIzFajla() {
 		String putanja = "test-knjige.json";
@@ -262,27 +262,27 @@ public abstract class BibliotekaInterfaceTest {
 		k2.setIzdanje(2);
 		k2.setIzdavac("Vulkan");
 
-		List<Knjiga> knjigeZaUpis = Arrays.asList(k,k2);
+		List<Knjiga> knjigeZaUpis = Arrays.asList(k, k2);
 
 		assertDoesNotThrow(() -> {
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();
-			
-			try(FileWriter fw = new FileWriter(putanja)){
-				gson.toJson(knjigeZaUpis,fw);
+
+			try (FileWriter fw = new FileWriter(putanja)) {
+				gson.toJson(knjigeZaUpis, fw);
 			}
 		});
-		
+
 		assertDoesNotThrow(() -> b.ucitajIzFajla(putanja));
 
 		List<Knjiga> knjige = b.vratiSveKnjige();
-		
+
 		assertEquals(2, knjige.size());
-		
+
 		assertTrue(knjige.contains(k));
 		assertTrue(knjige.contains(k2));
 
 	}
-	
+
 	@Test
 	void testUcitajIzFajlaDuplikati() {
 		String putanja = "test-knjige.json";
@@ -294,27 +294,98 @@ public abstract class BibliotekaInterfaceTest {
 		k2.setNaslov("Gospodar prstenova");
 		k2.setIzdanje(2);
 		k2.setIzdavac("Vulkan");
-		
+
 		b.dodajKnjigu(k);
 
-		List<Knjiga> knjigeZaUpis = Arrays.asList(k,k2);
+		List<Knjiga> knjigeZaUpis = Arrays.asList(k, k2);
 
 		assertDoesNotThrow(() -> {
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();
-			
-			try(FileWriter fw = new FileWriter(putanja)){
-				gson.toJson(knjigeZaUpis,fw);
+
+			try (FileWriter fw = new FileWriter(putanja)) {
+				gson.toJson(knjigeZaUpis, fw);
 			}
 		});
-		
+
 		assertDoesNotThrow(() -> b.ucitajIzFajla(putanja));
 
 		List<Knjiga> knjige = b.vratiSveKnjige();
-		
+
 		assertEquals(2, knjige.size());
-		
+
 		assertTrue(knjige.contains(k));
 		assertTrue(knjige.contains(k2));
+
+	}
+
+	@Test
+	void testPronadjiKnjiguUFajlNull() {
+		Exception ex = assertThrows(NullPointerException.class,
+				() -> b.pronadjiKnjigu(null, 0, "Gospodar", null, null));
+
+		assertEquals("Putanja do fajla ne sme biti null", ex.getMessage());
+	}
+
+	@Test
+	void testPronadjiKnjiguUFajlBezKriterijuma() {
+		Exception ex = assertThrows(IllegalArgumentException.class,
+				() -> b.pronadjiKnjigu(null, 0, null, null, "test-knjige.json"));
+
+		assertEquals("Morate uneti bar neki kriterijum pretrage", ex.getMessage());
+	}
+
+	@Test
+	void testPronadjiKnjiguUFajlException() {
+		Exception ex = assertThrows(RuntimeException.class,
+				() -> b.pronadjiKnjigu(null, 0, "Gospodar prstenova", null, "?:/nepostojeciFolder/test.json"));
+
+		assertEquals("Greska pri upisu u JSON fajl", ex.getMessage());
+
+	}
+
+	@Test
+	void testPronadjiKnjiguUFajl() {
+		String putanja = "test-knjige.json";
+
+		k.setNaslov("Na Drini cuprija");
+		k.setIzdavac("Laguna");
+		k.setIzdanje(1);
+
+		k2.setNaslov("Gospodar prstenova");
+		k2.setIzdanje(2);
+		k2.setIzdavac("Vulkan");
+
+		k3.setNaslov("Gospodar munja");
+		k3.setIzdanje(3);
+		k3.setIzdavac("Delfi");
+
+		b.dodajKnjigu(k);
+		b.dodajKnjigu(k2);
+		b.dodajKnjigu(k3);
+
+		assertDoesNotThrow(() -> b.pronadjiKnjigu(null, 0, "Gospodar", null, putanja));
+
+		File fajl = new File(putanja);
+
+		assertTrue(fajl.exists());
+		assertTrue(fajl.length() > 0);
+
+		assertDoesNotThrow(() -> {
+			String sadrzaj = Files.readString(Path.of(putanja));
+
+			assertTrue(sadrzaj.contains("\"isbn\""));
+			assertTrue(sadrzaj.contains("\"title\""));
+			assertTrue(sadrzaj.contains("\"authors\""));
+
+			assertTrue(sadrzaj.contains("Gospodar prstenova"));
+			assertTrue(sadrzaj.contains("Gospodar munja"));
+
+			assertFalse(sadrzaj.contains("Knjiga 1"));
+
+			assertFalse(sadrzaj.contains("\"naslov\""));
+			assertFalse(sadrzaj.contains("\"izdavac\""));
+			assertFalse(sadrzaj.contains("\"izdanje\""));
+		});
 
 	}
 

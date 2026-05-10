@@ -9,6 +9,9 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
 
 import rs.ac.bg.fon.nprog.mvnbiblioteka2026.interfejs.BibliotekaInterface;
 
@@ -125,6 +128,65 @@ public class Biblioteka implements BibliotekaInterface {
 			throw new RuntimeException("Greska pri ucitavanju iz JSON fajla", ex);
 		}
 
+	}
+
+	/**
+	 * Pretrazuje biblioteku i upisuje sve knjige koje imaju uneti deo naslova u
+	 * JSON fajl.
+	 * 
+	 * <b>Implementirana je pretraga samo preko naslova a ne preko ostalih
+	 * kriterijuma.</b>
+	 * 
+	 * @param autor   Jedan od autora knjige.
+	 * @param isbn    Tacan isbn broj knjige.
+	 * @param naslov  Deo naslova knjige. Ne mora se unositi ceo naslov.
+	 * @param izdavac Deo naziva izdavaca. Ne mora se unositi ceo naziv.
+	 * @param fajl    Naziv fajla u koji se upisuju rezultati pretrage.
+	 * @return Upisuje listu sa knjigama koje odgovaraju kriterijumima ili praznu
+	 *         listu ako ni jedna knjiga ne odgovara kriterijumima.
+	 * 
+	 * 
+	 * @throws java.lang.NullPointerException Ako je zadati fajl null.
+	 * @throws java.lang.RuntimeException     Ako dodje do greske pri upisivanju u
+	 *                                        JSON fajl.
+	 */
+	@Override
+	public void pronadjiKnjigu(Autor autor, long isbn, String naslov, String izdavac, String fajl) {
+		if (fajl == null) {
+			throw new NullPointerException("Putanja do fajla ne sme biti null");
+		}
+
+		List<Knjiga> rezultati = pronadjiKnjigu(autor, isbn, naslov, izdavac);
+
+		JsonArray jsonRezultati = new JsonArray();
+
+		for (Knjiga k : rezultati) {
+			JsonObject knjigaJson = new JsonObject();
+
+			knjigaJson.addProperty("isbn", k.getIsbn());
+			knjigaJson.addProperty("title", k.getNaslov());
+
+			if (k.getAutori() == null || k.getAutori().isEmpty()) {
+				knjigaJson.add("authors", JsonNull.INSTANCE);
+			} else {
+				JsonArray authors = new JsonArray();
+
+				for (Autor a : k.getAutori()) {
+					authors.add(a.getIme() + " " + a.getPrezime());
+				}
+
+				knjigaJson.add("authors", authors);
+			}
+			jsonRezultati.add(knjigaJson);
+		}
+
+		Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
+
+		try (FileWriter fw = new FileWriter(fajl)) {
+			gson.toJson(jsonRezultati, fw);
+		} catch (IOException e) {
+			throw new RuntimeException("Greska pri upisu u JSON fajl", e);
+		}
 	}
 
 }

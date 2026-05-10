@@ -84,6 +84,23 @@ public interface BibliotekaInterface {
 	 */
 	public void ucitajIzFajla(String fajl);
 	
+	/**
+	 * Pretrazuje biblioteku i upisuje sve knjige koje odgovaraju unetim kriterijumima u JSON fajl.
+	 * 
+	 * Mora se uneti bar jedan kriterijum pretrage. Ako se unese vise kriterijuma odjednom, pretraga se vrsi preko svih unetih kriterijuma.
+	 * 
+	 * @param autor Jedan od autora knjige.
+	 * @param isbn Tacan isbn broj knjige.
+	 * @param naslov Deo naslova knjige. Ne mora se unositi ceo naslov. 
+	 * @param izdavac Deo naziva izdavaca. Ne mora se unositi ceo naziv.
+	 * @param fajl Naziv fajla u koji se upisuju rezultati pretrage.
+	 * @return Vraca listu sa knjigama koje odgovaraju kriterijumima ili praznu listu ako ni jedna knjiga ne odgovara kriterijumima.
+	 * 
+	 * @throws java.lang.NullPointerException Ako je zadati fajl null.
+	 * @throws java.lang.RuntimeException Ako dodje do greske pri upisivanju u JSON fajl.
+	 */
+	public void pronadjiKnjigu(Autor autor, long isbn, String naslov, String izdavac, String fajl);
+	
 	
 		
 	
